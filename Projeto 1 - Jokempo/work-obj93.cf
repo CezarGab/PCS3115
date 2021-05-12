@@ -1,0 +1,10 @@
+v 4
+file . "melhordetres_tb.vhd" "1c212a4c882033d3f315667b7777d74ba2b4d727" "20210511232020.457":
+  entity testbench at 4( 53) + 0 on 16;
+  architecture tb of testbench at 12( 155) + 0 on 17;
+file . "jokempo.vhd" "f2a1bd6c8349e454c42103b18d36453882a43d74" "20210511232020.444":
+  entity jokempo at 5( 147) + 0 on 11;
+  architecture jokempo_arch of jokempo at 13( 363) + 0 on 12;
+  entity melhordetres at 30( 1023) + 0 on 13;
+  architecture melhordetres_arch of melhordetres at 40( 1360) + 0 on 14;
+  entity jokempotriplo at 51( 1859) + 0 on 15;
