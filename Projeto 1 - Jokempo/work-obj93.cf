@@ -1,10 +1,11 @@
 v 4
-file . "jokempo.vhd" "10d0793439b80767799bcc7cabf53f5cad10f8f3" "20210513231057.016":
-  entity jokempo at 5( 147) + 0 on 58;
-  architecture jokempo_arch of jokempo at 13( 363) + 0 on 59;
-  entity melhordetres at 31( 1024) + 0 on 60;
-  architecture melhordetres_arch of melhordetres at 41( 1361) + 0 on 61;
-  entity jokempotriplo at 79( 3056) + 0 on 62;
+file . "jokempo.vhd" "a998614a8df8de5bf6fed8d32944ea6440ac7860" "20210514000707.279":
+  entity jokempo at 7( 219) + 0 on 105;
+  architecture jokempo_arch of jokempo at 15( 435) + 0 on 106;
+  entity melhordetres at 38( 1265) + 0 on 107;
+  architecture melhordetres_arch of melhordetres at 48( 1602) + 0 on 108;
+  entity jokempotriplo at 75( 2852) + 0 on 109;
+  architecture jokempotriplo_arch of jokempotriplo at 83( 3141) + 0 on 110;
 file . "melhordetres_tb.vhd" "1c212a4c882033d3f315667b7777d74ba2b4d727" "20210511232020.457":
   entity testbench at 4( 53) + 0 on 16;
   architecture tb of testbench at 12( 155) + 0 on 17;

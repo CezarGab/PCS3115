@@ -1,7 +1,9 @@
+-- ______________________Regras gerais:______________________ 
 -- Pedra (01), Papel (10), Tesoura (11)
 -- Cada jogador controla 6 bits (3 jogos)
 -- Saida: 10 vit. A, 01 vit. B, 11 empate, 00 estado de espera 
 
+-- T1A1:
 entity jokempo is
   port (
     a: in bit_vector(1 downto 0); --! gesto do jogador A
@@ -12,6 +14,10 @@ end jokempo;
 
 architecture jokempo_arch of jokempo is
 begin
+    -- Para a resolução desta arquitetura, optei por reduzir as saídas
+    -- em expressões boolenas. Para isto, considera-se as seguintes
+    -- equivalências:
+    
     -- A = a(0); B = a(1); C = b(0); D = b(1).
 
     -- y(1) = AB'C + ABD + BC'D + A'BCD'
@@ -26,8 +32,9 @@ begin
             ((not a(0) and a(1)) and b(1)) or
             ((a(0) and not a(1)) and (not b(0) and b(1))); 
 
-end jokempo_arch; -- jokempo
+end jokempo_arch;
 
+-- T1A2:
 entity melhordetres is
   port(
       resultado1: in bit_vector(1 downto 0); --! resultado do jogo 1
@@ -62,8 +69,9 @@ begin
                     ) else
          "11";
   
-end melhordetres_arch; -- melhordetres
+end melhordetres_arch; 
 
+-- T1A3:
 entity jokempotriplo is
   port (
     a1, a2, a3: in bit_vector(1 downto 0); --! gesto do jogador A para 3 jogos
@@ -72,10 +80,50 @@ entity jokempotriplo is
   ) ;
 end jokempotriplo; 
 
--- architecture jokempotriplo_arch of jokempotriplo is
+architecture jokempotriplo_arch of jokempotriplo is
+  component jokempo 
+    port(
+      a: in bit_vector(1 downto 0); 
+      b: in bit_vector(1 downto 0); 
+      y: out bit_vector(1 downto 0) 
+    );
+    end component;
 
---   signal 
+  component melhordetres     
+    port(
+      resultado1: in bit_vector(1 downto 0);
+      resultado2: in bit_vector(1 downto 0);
+      resultado3: in bit_vector(1 downto 0);
+      z:  out bit_vector(1 downto 0)
+    );
+  end component;  
 
--- begin
+  signal vencedor1, vencedor2, vencedor3: bit_vector(1 downto 0);
 
--- end jokempotriplo_arch ;
+begin
+  jogo1: jokempo port map(
+    a => a1,
+    b => b1,
+    y => vencedor1
+  );
+
+  jogo2: jokempo port map(
+    a => a2,
+    b => b2,
+    y => vencedor2
+  );
+
+  jogo3: jokempo port map(
+    a => a3,
+    b => b3,
+    y => vencedor3
+  );
+
+  md3: melhordetres port map(
+    resultado1 => vencedor1,
+    resultado2 => vencedor2,
+    resultado3 => vencedor3, 
+    z => z
+  );
+
+end jokempotriplo_arch;
