@@ -316,9 +316,9 @@ begin
   jkp3_component: jkp3 port map(
         clock => clock,
         reset => reset,
-        atualiza => aux1, ------------ IMPORTANTE: Explicar depois o uso do auxiliar
-        loadA => aux4, ------- IMPORTANTE: Explicar depois o uso do auxiliar
-        loadB => aux5, ------- IMPORTANTE: Explicar depois o uso do auxiliar
+        atualiza => aux1, ------------ IMPORTANTE: 
+        loadA => aux4, ------- IMPORTANTE: 
+        loadB => aux5, ------- IMPORTANTE: 
         a1 => a1, a2 => a2, a3 => a3,
         b1 => b1, b2 => b2, b3 => b3,
         z => z
