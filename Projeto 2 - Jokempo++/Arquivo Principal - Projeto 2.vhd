@@ -1,4 +1,4 @@
---! APAGAR ESSE TRECHO ANTES DE ENVIAR
+--! Este trecho foi excluído nos envios ao Judge, a pedido do enunciado.
 entity flipflopd is
     port( 
       D, reset, clock, EN: in  bit;
@@ -87,10 +87,6 @@ begin
    -- Bits de dado: ent(9), ent(8), ent(7), ent(6), ent(5), ent(4)
    --                 10      9       7       6       5       3    | Casas no modo normal     
     
-    -- p1 = 8 XOR 7 XOR 5 XOR 4
-    -- p2 = 9 XOR 7 XOR 6 XOR 4
-    -- p4 = 7 XOR 6 XOR 5 
-    -- p8 = 9 XOR 8
     
     paridade_p1 <=                entrada(8) XOR entrada(7)                XOR entrada(5) XOR entrada(4) XOR entrada(0);
     paridade_p2 <= entrada(9)                XOR entrada(7) XOR entrada(6)                XOR entrada(4) XOR entrada(1);
@@ -282,80 +278,267 @@ begin
     
 end architecture jkp3_arch;
 
-architecture jkp3auto_arch of jkp3auto is
-  
+entity jkp3auto is
+  port (
+      reset, clock: in  bit;
+      loadA, loadB: in  bit;                    --! armazenam os gestos
+      atualiza:     in  bit;                    --! atualiza resultado z
+      a1, a2, a3:   in  bit_vector(1 downto 0); --! gestos do jogador A para os 3 jogos
+      b1, b2, b3:   in  bit_vector(1 downto 0); --! gestos do jogador B para os 3 jogos
+      z:            out bit_vector(1 downto 0) --! resultado da disputa 
+  );
+  end entity jkp3auto;
+
+  entity jokempo is
+      port (
+        a: in bit_vector(1 downto 0); --! gesto do jogador A
+        b: in bit_vector(1 downto 0); --! gesto do jogador B
+        y: out bit_vector(1 downto 0) --! resultado do jogo
+      );
+    end jokempo;
+
+     -- T1A2:
+entity melhordetres is
+  port(
+      resultado1: in bit_vector(1 downto 0); --! resultado do jogo 1
+      resultado2: in bit_vector(1 downto 0); --! resultado do jogo 2
+      resultado3: in bit_vector(1 downto 0); --! resultado do jogo 3
+      z:          out bit_vector(1 downto 0) --! resultado da disputa
+  );
+  end melhordetres;
+
+    -- T1A3:
+entity jokempotriplo is
+  port (
+    a1, a2, a3: in bit_vector(1 downto 0); --! gesto do jogador A para 3 jogos
+    b1, b2, b3: in bit_vector(1 downto 0); --! gesto do jogador B para os 3 jogos
+    z:          out bit_vector(1 downto 0) --! resultado da disputa
+  ) ;
+end jokempotriplo; 
+
+architecture jkp3_arch of jkp3 is
   component flipflopd 
     port(
       D, reset, clock, EN: in  bit;
       Q:                   out bit 
-    );
+  );
   end component;
 
-  component jkp3 is
-    port (
-      reset, clock:   in bit;                     
-      loadA, loadB:   in bit;                       --! armazenam os gestos 
-      atualiza:       in bit;                       --! atualiza o resultado z
-      a1, a2, a3:     in bit_vector(1 downto 0);    --! gestos do jogador A para os 3 jogos
-      b1, b2, b3:     in bit_vector(1 downto 0);    --! gestos do jogador B para os 3 jogos
-      z:              out bit_vector(1 downto 0)   --! resultado da disputa
-    ) ;
-  end component;
+  component jokempotriplo is
+      port (
+        a1, a2, a3: in bit_vector(1 downto 0); --! gesto do jogador A para 3 jogos
+        b1, b2, b3: in bit_vector(1 downto 0); --! gesto do jogador B para os 3 jogos
+        z:          out bit_vector(1 downto 0) --! resultado da disputa
+      ) ;
+  end component; 
 
-  signal botao_apertadoA, botao_apertadoB, botao_soltoA, botao_soltoB: bit;
-  signal aux1, aux2, aux3, aux4, aux5: bit;
+  signal ff_a1_0, ff_a1_1, ff_a2_0, 
+         ff_a2_1, ff_a3_0, ff_a3_1, 
+         ff_b1_0, ff_b1_1, ff_b2_0,
+         ff_b2_1, ff_b3_0, ff_b3_1: bit;
+  
+  signal ff_a1, ff_a2, ff_a3, ff_b1,
+         ff_b2, ff_b3: bit_vector(1 downto 0);
+
+  signal resultado_triplo: bit_vector(1 downto 0);
 
 begin
-  aux1 <= '1' when ((botao_soltoA and botao_soltoB) = '1') else atualiza;
-  aux2 <= (NOT loadA);
-  aux3 <= (NOT loadB);
+----------| Flipflops dos gestos |---------------------
+-- Eh necessario 1 FF para cada bit de cada gesto de --
+-- cada jogador. a1 eh dividido em a1(0) e a1(1),    --
+-- por exemplo.                                      --
+-------------------------------------------------------
+  a1_0: flipflopd port map(
+      clock => clock,
+      reset => reset,
+      EN => loadA,
+      D => a1(0),
+      Q => ff_a1_0
+    );
 
-  aux4 <= loadA when (atualiza = '1') else botao_soltoA;
-  aux5 <= loadB when (atualiza = '1') else botao_soltoB;
+  a1_1: flipflopd port map(
+      clock => clock,
+      reset => reset,
+      EN => loadA,
+      D => a1(1),
+      Q => ff_a1_1
+    );
   
-  jkp3_component: jkp3 port map(
-        clock => clock,
-        reset => reset,
-        atualiza => aux1, ------------ IMPORTANTE: 
-        loadA => aux4, ------- IMPORTANTE: 
-        loadB => aux5, ------- IMPORTANTE: 
-        a1 => a1, a2 => a2, a3 => a3,
-        b1 => b1, b2 => b2, b3 => b3,
-        z => z
-      );
+  a2_0: flipflopd port map(
+      clock => clock,
+      reset => reset,
+      EN => loadA,
+      D => a2(0),
+      Q => ff_a2_0
+    );
+
+  a2_1: flipflopd port map(
+      clock => clock,
+      reset => reset,
+      EN => loadA,
+      D => a2(1),
+      Q => ff_a2_1
+    );
   
-  ff_botaoA: flipflopd port map( 
-    clock => clock,
-    reset => reset,
-    EN => loadA,
-    D => '1',
-    Q => botao_apertadoA
-  );
+  a3_0: flipflopd port map(
+      clock => clock,
+      reset => reset,
+      EN => loadA,
+      D => a3(0),
+      Q => ff_a3_0
+    );
+  
+  a3_1: flipflopd port map(
+      clock => clock,
+      reset => reset,
+      EN => loadA,
+      D => a3(1),
+      Q => ff_a3_1
+    );
+  
+  b1_0: flipflopd port map(
+      clock => clock,
+      reset => reset,
+      EN => loadB,
+      D => b1(0),
+      Q => ff_b1_0
+    );
 
-  ff_botaoAsolto: flipflopd port map( 
-    clock => clock,
-    reset => reset,
-    EN => aux2,
-    D => botao_apertadoA,
-    Q => botao_soltoA
-  );
+  b1_1: flipflopd port map(
+      clock => clock,
+      reset => reset,
+      EN => loadB,
+      D => b1(1),
+      Q => ff_b1_1
+    );
+  
+  b2_0: flipflopd port map(
+      clock => clock,
+      reset => reset,
+      EN => loadB,
+      D => b2(0),
+      Q => ff_b2_0
+    );
 
-  ff_botaoB: flipflopd port map(
-    clock => clock,
-    reset => reset,
-    EN => aux3,
-    D => '1',
-    Q => botao_apertadoB
-  );
+  b2_1: flipflopd port map(
+      clock => clock,
+      reset => reset,
+      EN => loadB,
+      D => b2(1),
+      Q => ff_b2_1
+    );
+  
+  b3_0: flipflopd port map(
+      clock => clock,
+      reset => reset,
+      EN => loadB,
+      D => b3(0),
+      Q => ff_b3_0
+    );
+  
+  b3_1: flipflopd port map(
+      clock => clock,
+      reset => reset,
+      EN => loadB,
+      D => b3(1),
+      Q => ff_b3_1
+    );
+  ------------------------------------------------
 
-  ff_botaoBsolto: flipflopd port map(
-    clock => clock,
-    reset => reset,
-    EN => loadB,
-    D => botao_apertadoB,
-    Q => botao_soltoB
+  ff_a1 <= (ff_a1_1 & ff_a1_0);
+  ff_a2 <= (ff_a2_1 & ff_a2_0);
+  ff_a3 <= (ff_a3_1 & ff_a3_0);
+  ff_b1 <= (ff_b1_1 & ff_b1_0);
+  ff_b2 <= (ff_b2_1 & ff_b2_0);
+  ff_b3 <= (ff_b3_1 & ff_b3_0);
+
+  jogo_triplo: jokempotriplo port map(
+      a1 => ff_a1,
+      a2 => ff_a2,
+      a3 => ff_a3,
+      b1 => ff_b1,
+      b2 => ff_b2,
+      b3 => ff_b3,
+      z  => resultado_triplo
   );
   
+  ff_resultado_0: flipflopd port map(
+      clock => clock,
+      reset => reset,
+      EN => atualiza,
+      D => resultado_triplo(0),
+      Q => z(0)  
+    );
+  
+  ff_resultado_1: flipflopd port map(
+      clock => clock,
+      reset => reset,
+      EN => atualiza,
+      D => resultado_triplo(1),
+      Q => z(1)  
+    );
+  
+end architecture jkp3_arch;
+
+architecture jkp3auto_arch of jkp3auto is
+
+component flipflopd 
+  port(
+    D, reset, clock, EN: in  bit;
+    Q:                   out bit 
+  );
+end component;
+
+component jkp3 is
+  port (
+    reset, clock:   in bit;                     
+    loadA, loadB:   in bit;                       --! armazenam os gestos 
+    atualiza:       in bit;                       --! atualiza o resultado z
+    a1, a2, a3:     in bit_vector(1 downto 0);    --! gestos do jogador A para os 3 jogos
+    b1, b2, b3:     in bit_vector(1 downto 0);    --! gestos do jogador B para os 3 jogos
+    z:              out bit_vector(1 downto 0)   --! resultado da disputa
+  ) ;
+end component;
+
+signal botao_apertadoA, botao_apertadoB: bit;
+signal aux: bit;
+
+begin
+aux <= '1' when (((botao_apertadoA and botao_apertadoB) = '1') 
+                and (loadA = '0') and (loadB = '0')) else 
+                atualiza;
+-- O signal auxiliar alterna sua funcionalidade para
+-- que o jogo seja atualizado com o botao atualiza,
+-- ou na borda de descida dos loads (botoes soltos apos
+-- serem pressionados)
+
+jkp3_component: jkp3 port map(
+      clock => clock,
+      reset => reset,
+      atualiza => aux,
+      loadA => loadA, 
+      loadB => loadB, 
+      a1 => a1, a2 => a2, a3 => a3,
+      b1 => b1, b2 => b2, b3 => b3,
+      z => z
+    );
+
+ff_botaoA: flipflopd port map( 
+  clock => clock,
+  reset => reset,
+  EN => loadA,
+  D => loadA, 
+  Q => botao_apertadoA
+);
+
+ff_botaoB: flipflopd port map(
+  clock => clock,
+  reset => reset,
+  EN => loadB,
+  D => loadB, 
+  Q => botao_apertadoB
+);
+
 end architecture jkp3auto_arch;
 
 

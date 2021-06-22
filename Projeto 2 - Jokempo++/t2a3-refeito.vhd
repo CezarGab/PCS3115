@@ -232,23 +232,23 @@ architecture jkp3auto_arch of jkp3auto is
     ) ;
   end component;
 
-  signal botao_apertadoA, botao_apertadoB, botao_soltoA, botao_soltoB: bit;
-  signal aux1, aux2, aux3, aux4, aux5: bit;
+  signal botao_apertadoA, botao_apertadoB: bit;
+  signal aux: bit;
 
 begin
-  aux1 <= '1' when ((botao_soltoA and botao_soltoB) = '1') else atualiza;
-  aux2 <= (NOT loadA);
-  aux3 <= (NOT loadB);
-
-  aux4 <= loadA when (atualiza = '1') else botao_soltoA;
-  aux5 <= loadB when (atualiza = '1') else botao_soltoB;
+  aux <= '1' when (((botao_apertadoA and botao_apertadoB) = '1') 
+                  and (loadA = '0') and (loadB = '0')) else 
+                  atualiza;
+  -- O signal auxiliar alterna sua funcionalidade para
+  -- que o jogo seja atualizado com o botao atualiza,
+  -- ou na borda de descida dos loads 
   
   jkp3_component: jkp3 port map(
         clock => clock,
         reset => reset,
-        atualiza => aux1, ------------ IMPORTANTE: Explicar depois o uso do auxiliar
-        loadA => aux4, ------- IMPORTANTE: Explicar depois o uso do auxiliar
-        loadB => aux5, ------- IMPORTANTE: Explicar depois o uso do auxiliar
+        atualiza => aux,
+        loadA => loadA, 
+        loadB => loadB, 
         a1 => a1, a2 => a2, a3 => a3,
         b1 => b1, b2 => b2, b3 => b3,
         z => z
@@ -262,14 +262,6 @@ begin
     Q => botao_apertadoA
   );
 
-  ff_botaoAsolto: flipflopd port map( 
-    clock => clock,
-    reset => reset,
-    EN => aux2,
-    D => botao_apertadoA,
-    Q => botao_soltoA
-  );
-
   ff_botaoB: flipflopd port map(
     clock => clock,
     reset => reset,
@@ -278,14 +270,6 @@ begin
     Q => botao_apertadoB
   );
 
-  ff_botaoBsolto: flipflopd port map(
-    clock => clock,
-    reset => reset,
-    EN => aux3,
-    D => botao_apertadoB,
-    Q => botao_soltoB
-  );
-  
 end architecture jkp3auto_arch;
 
 
